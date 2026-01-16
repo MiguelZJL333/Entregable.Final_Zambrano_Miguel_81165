@@ -1,0 +1,299 @@
+<style>
+    .filter-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        margin-bottom: 8px;
+        font-weight: 600;
+        display: block;
+    }
+
+    .form-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .form-inline .form-group {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .products-table {
+        margin-bottom: 40px;
+        border-collapse: collapse;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .products-table thead {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .products-table th {
+        padding: 15px;
+        font-weight: 600;
+        border: none;
+    }
+
+    .products-table td {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .products-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .pagination-section {
+        display: flex;
+        justify-content: center;
+        margin: 40px 0;
+    }
+
+    .pagination {
+        gap: 5px;
+    }
+
+    .pagination .page-link {
+        padding: 8px 12px;
+        margin: 0;
+    }
+
+    .info-section {
+        text-align: center;
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .no-products {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Productos</h1>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filter-section">
+        <form method="GET" class="form-inline" id="filterForm">
+            <div class="form-group">
+                <label for="query">Categoría/Filtro:</label>
+                <select name="query" id="query" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Books">Books</option>
+                    <option value="Home">Home</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Other">Other</option>
+                    <option value="Cell">Cell</option>
+                    <option value="available">Disponibles</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sort">Ordenar por precio:</label>
+                <select name="sort" id="sort" class="form-control">
+                    <option value="">Sin ordenamiento</option>
+                    <option value="asc">Menor a Mayor</option>
+                    <option value="desc">Mayor a Menor</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="limit">Items por página:</label>
+                <input type="number" name="limit" id="limit" class="form-control" value="10" min="1" max="100">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="height: fit-content;">Filtrar</button>
+        </form>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="row">
+        <div class="col-md-12">
+            {{#if payload}}
+                {{#if (gt payload.length 0)}}
+                    <div style="overflow-x: auto;">
+                        <table class="table table-striped products-table">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each payload}}
+                                <tr>
+                                    <td><strong>{{this.title}}</strong></td>
+                                    <td><span class="badge badge-info">{{this.category}}</span></td>
+                                    <td><strong class="text-success">${{this.price}}</strong></td>
+                                    <td>{{this.stock}} unidades</td>
+                                    <td>
+                                        {{#if this.status}}
+                                            <span class="badge badge-success">Disponible</span>
+                                        {{else}}
+                                            <span class="badge badge-danger">No Disponible</span>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="/products/{{this._id}}" class="btn btn-sm btn-info">Ver Detalles</a>
+                                            <button class="btn btn-sm btn-success add-to-cart" data-product-id="{{this._id}}" data-product-name="{{this.title}}">Agregar al Carrito</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                {{else}}
+                    <div class="no-products">
+                        <p>No se encontraron productos.</p>
+                    </div>
+                {{/if}}
+            {{else}}
+                <div class="no-products">
+                    <p>No se encontraron productos.</p>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination-section">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {{#if hasPrevPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="{{prevLink}}">← Anterior</a>
+                    </li>
+                {{else}}
+                    <li class="page-item disabled">
+                        <span class="page-link">← Anterior</span>
+                    </li>
+                {{/if}}
+
+                {{#each links}}
+                    {{#if this.active}}
+                        <li class="page-item active">
+                            <span class="page-link">{{this.text}}</span>
+                        </li>
+                    {{else}}
+                        <li class="page-item">
+                            <a class="page-link" href="{{this.Link}}">{{this.text}}</a>
+                        </li>
+                    {{/if}}
+                {{/each}}
+
+                {{#if hasNextPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="{{nextLink}}">Siguiente →</a>
+                    </li>
+                {{else}}
+                    <li class="page-item disabled">
+                        <span class="page-link">Siguiente →</span>
+                    </li>
+                {{/if}}
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Información de paginación -->
+    <div class="info-section">
+        <p class="mb-0"><strong>Página {{page}} de {{totalPages}}</strong></p>
+    </div>
+</div>
+
+<script>
+// Crear un carrito al cargar la página si no existe
+let currentCartId = localStorage.getItem('cartId');
+
+async function initCart() {
+    if (!currentCartId) {
+        try {
+            const response = await fetch('/api/carts', { method: 'POST' });
+            const data = await response.json();
+            currentCartId = data.payload._id;
+            localStorage.setItem('cartId', currentCartId);
+        } catch (error) {
+            console.error('Error al crear carrito:', error);
+            alert('Error al crear carrito');
+        }
+    }
+}
+
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', async function() {
+        const productId = this.getAttribute('data-product-id');
+        const productName = this.getAttribute('data-product-name');
+        
+        if (!currentCartId) {
+            await initCart();
+        }
+        
+        try {
+            const response = await fetch(`/api/carts/${currentCartId}/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                alert('✓ ' + productName + ' agregado al carrito');
+                console.log('Carrito actualizado:', data.payload);
+            } else {
+                alert('Error al agregar el producto al carrito');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al agregar el producto al carrito');
+        }
+    });
+});
+
+// Inicializar carrito al cargar
+window.addEventListener('DOMContentLoaded', initCart);
+</script>

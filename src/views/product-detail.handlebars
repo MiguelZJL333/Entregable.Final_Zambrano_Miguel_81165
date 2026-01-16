@@ -1,0 +1,134 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Detalles del Producto</h1>
+            
+            {{#if product}}
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">{{product.title}}</h3>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Código:</strong> {{product.code}}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Categoría:</strong> {{product.category}}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Precio:</strong> <span class="text-success">${{product.price}}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Stock Disponible:</strong> {{product.stock}} unidades
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <strong>Estado:</strong>
+                                {{#if product.status}}
+                                    <span class="badge badge-success">Disponible</span>
+                                {{else}}
+                                    <span class="badge badge-danger">No Disponible</span>
+                                {{/if}}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <strong>Descripción:</strong>
+                                <p>{{product.description}}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <strong>Imagen:</strong>
+                                <img src="/images/{{product.thumbnails}}" alt="{{product.title}}" class="img-fluid" style="max-width: 300px;">
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <form id="addToCartForm">
+                                    <div class="form-group">
+                                        <label for="quantity">Cantidad:</label>
+                                        <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="{{product.stock}}">
+                                    </div>
+                                    <button type="button" class="btn btn-success btn-lg" id="addToCartBtn" {{#unless product.status}}disabled{{/unless}}>
+                                        Agregar al Carrito
+                                    </button>
+                                    <a href="/" class="btn btn-secondary btn-lg ml-2">Volver</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{else}}
+                <div class="alert alert-danger">
+                    Producto no encontrado
+                </div>
+                <a href="/" class="btn btn-primary">Volver a Productos</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+<script>
+let currentCartId = localStorage.getItem('cartId');
+
+async function initCart() {
+    if (!currentCartId) {
+        try {
+            const response = await fetch('/api/carts', { method: 'POST' });
+            const data = await response.json();
+            currentCartId = data.payload._id;
+            localStorage.setItem('cartId', currentCartId);
+        } catch (error) {
+            console.error('Error al crear carrito:', error);
+            alert('Error al crear carrito');
+        }
+    }
+}
+
+document.getElementById('addToCartBtn').addEventListener('click', async function() {
+    const quantity = document.getElementById('quantity').value;
+    const productId = '{{product._id}}';
+    const productName = '{{product.title}}';
+    
+    if (!quantity || quantity < 1) {
+        alert('Por favor ingresa una cantidad válida');
+        return;
+    }
+    
+    if (!currentCartId) {
+        await initCart();
+    }
+    
+    try {
+        const response = await fetch(`/api/carts/${currentCartId}/product/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity: parseInt(quantity) })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            alert('✓ ' + quantity + ' unidades de ' + productName + ' agregadas al carrito');
+            console.log('Carrito actualizado:', data.payload);
+        } else {
+            alert('Error al agregar el producto al carrito');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al agregar el producto al carrito');
+    }
+});
+
+window.addEventListener('DOMContentLoaded', initCart);
+</script>

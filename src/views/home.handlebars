@@ -1,0 +1,17 @@
+<div>
+    <h1>Welcome to the Home Page</h1>
+    <div></div>
+        {{#each products}}
+            <div>
+                <h2>{{title}}</h2>
+                <p>{{description}}</p>
+                <p>Price: ${{price}}</p>
+            </div>
+        {{/each}}
+    </div>
+    <div></div>
+        {{#each links}}
+            <a href={{this.Link}}>{{this.text}}</a>
+        {{/each}}
+    </div>
+</div>

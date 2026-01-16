@@ -40,7 +40,10 @@ const productSchema = new mongoose.Schema(
         category: {
             type: String,
             required: true,
-            enum: ['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Other', 'Cell'],
+            enum: ['Electronicos','Cuardenos y Libretas', 'Hogar', 'Deportes', 'Celulares', 'Fideos', 'Pastas Frescas', 'Arroz',
+                'Legumbres', 'Conservas', 'Salsas', 'Galletitas', 'Harinas', 'Aceites', 'Limpieza', 'Bebidas',
+                'Bebidas Alcoholicas', 'Papel', 'Aderezos', 'Yerba', 'Snack', 'Prueba', 'Dulces', 'Salados', 'Cereales',
+                'Fiambres', 'Quesos', 'Lacteos', 'Congelados', 'Panificados', 'Tortas', 'Masas', 'Tartas'],
         },
         thumbnails: {
             type: String,
@@ -58,7 +61,7 @@ productSchema.index({ description: "text" });
 
 productSchema.index({ code: 1 }, { unique: true });
 
-productSchema.index({ price: 1})
+productSchema.index({ price: 1 })
 
 productSchema.index({ category: 1 });
 

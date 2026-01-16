@@ -1,7 +1,5 @@
 import express from 'express';
 import Product from '../models/product.model.js';
-// import Cart from "../models/cart.model.js";
-// import {errorHandler} from '../util/httpErrors.js';
 
 const viewsRouter = express.Router();
 
